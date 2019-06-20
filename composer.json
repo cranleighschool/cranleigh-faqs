@@ -1,0 +1,16 @@
+{
+    "name": "fredbradley/cranleigh-faqs",
+    "authors": [
+        {
+            "name": "Fred Bradley",
+            "email": "hello@fredbradley.co.uk"
+        }
+    ],
+	"autoload": {
+		"psr-4": {
+			"CranleighSchool\\CranleighFAQs\\": "src/"
+		}
+	},
+    "require": {
+    }
+}
