@@ -50,7 +50,6 @@ class Shortcode {
 	 * @return string
 	 */
 	public function render( $atts, $content = null ) {
-		var_dump( $this->tag );
 		$a = shortcode_atts(
 			[
 				'group' => null,
