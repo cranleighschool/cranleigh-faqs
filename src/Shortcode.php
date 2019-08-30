@@ -9,82 +9,91 @@
 	 *
 	 * @package CranleighSchool\CranleighFAQs
 	 */
-class Shortcode {
+	class Shortcode
+	{
 
-	/**
-	 * @var string
-	 */
-	public $tag = 'cranleigh_faqs';
+		/**
+		 * @var string
+		 */
+		public $tag = 'cranleigh_faqs';
 
-	/**
-	 * @var string
-	 */
-	public $collapsibles = 'collapsibles';
+		private $panel_style = 'panel-cranleigh';
 
-	/**
-	 * @var string
-	 */
-	public $collapse = 'collapse';
 
-	/**
-	 * Shortcode constructor.
-	 *
-	 * @param array|NULL $config
-	 */
-	public function __construct( array $config = null ) {
-		add_shortcode( $this->tag, array( $this, 'render' ) );
+		/**
+		 * Shortcode constructor.
+		 *
+		 * @param array|NULL $config
+		 */
+		public function __construct(array $config = NULL)
+		{
+			add_shortcode($this->tag, array($this, 'render'));
 
-	}
-
-	/**
-	 * @param      $atts
-	 * @param null $content
-	 *
-	 * Here's the output we're hoping for...
-	 *
-	 * [accordions autoclose="true" openfirst="false" openall="true"]
-	 * [accordion title="Charges" autoclose="true" openfirst="false" openall="false"]
-	 *   Answer Text Paragraph
-	 * [/accordion]
-	 *
-	 * @return string
-	 */
-	public function render( $atts, $content = null ) {
-		$a = shortcode_atts(
-			[
-				'group' => null,
-			],
-			$atts,
-			'cranleigh_faqs'
-		);
-
-		$args = [
-			'posts_per_page' => -1,
-			'post_type'      => 'faqs',
-			'orderby'        => 'menu_order title',
-			'order'          => 'ASC',
-		];
-		if ( $a['group'] !== null ) {
-			$args['tax_query'] = [
-				[
-					'taxonomy' => 'faq_groups',
-					'field'    => 'slug',
-					'terms'    => $a['group'],
-				],
-			];
 		}
 
-		$query     = new WP_Query( $args );
-		$questions = '';
-		while ( $query->have_posts() ) :
-			$query->the_post();
-			$questions .= '[' . $this->collapse . ' active="0" openfirst="false" type="cranleigh" title="' . get_the_title() . '"]' . wpautop( get_the_content() ) . '[/' . $this->collapse . ']';
+		/**
+		 * @param      $atts
+		 * @param null $content
+		 *
+		 * @return string
+		 */
+		public function render($atts, $content = NULL): string
+		{
+			$a = shortcode_atts(
+				[
+					'group' => NULL,
+				],
+				$atts,
+				'cranleigh_faqs'
+			);
+
+			$args = [
+				'posts_per_page' => -1,
+				'post_type'      => 'faqs',
+				'orderby'        => 'menu_order title',
+				'order'          => 'ASC',
+			];
+			if ($a['group'] !== NULL) {
+				$args['tax_query'] = [
+					[
+						'taxonomy' => 'faq_groups',
+						'field'    => 'slug',
+						'terms'    => $a['group'],
+					],
+				];
+			}
+			$collapse_parent_name = 'collapse-faq-' . $a['group'];
+			$query = new WP_Query($args);
+			$questions = '';
+			while ($query->have_posts()) :
+				$query->the_post();
+				$questions .= $this->getPanel(get_the_title(), wpautop(get_the_content()), $collapse_parent_name, get_the_ID());
 			endwhile;
-		wp_reset_postdata();
+			wp_reset_postdata();
 
-		$start  = '[' . $this->collapsibles . ' active="999" collapsible="true"]';
-		$finish = '[/' . $this->collapsibles . ']';
+			return sprintf('<div class="panel-group" id="%s">%s</div>', $collapse_parent_name, $questions);
 
-		return do_shortcode( $start . $questions . $finish );
+		}
+
+		private function getPanel(string $title, string $content, string $parent_id, int $x): string
+		{
+			$answer_id = $parent_id . '-' . $x;
+
+			ob_start(); ?>
+			<div class="panel <?php echo $this->panel_style; ?>">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a class="collapsed" data-toggle="collapse" data-parent="#<?php echo $parent_id; ?>"
+						   href="#<?php echo $answer_id; ?>" style="user-select: none;"><?php echo $title; ?></a>
+					</h4>
+				</div>
+				<div id="<?php echo $answer_id; ?>" class="panel-collapse collapse">
+					<div class="panel-body"><?php echo $content; ?></div>
+				</div>
+			</div>
+			<?php $contents = ob_get_contents();
+			ob_end_clean();
+
+			return $contents;
+		}
 	}
-}
