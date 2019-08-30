@@ -27,8 +27,16 @@
 		 */
 		public function __construct(array $config = NULL)
 		{
+			$this->getPanelStyle();
 			add_shortcode($this->tag, array($this, 'render'));
 
+		}
+
+		private function getPanelStyle()
+		{
+			if (strpos($_SERVER['HTTP_HOST'], "cranprep.org")) {
+				$this->panel_style = 'panel-cranprep';
+			}
 		}
 
 		/**
