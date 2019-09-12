@@ -58,6 +58,18 @@ class CustomPostType {
 			'items_list_navigation' => __( 'Items list navigation', 'cranleigh-2016' ),
 			'filter_items_list'     => __( 'Filter items list', 'cranleigh-2016' ),
 		);
+		$capabilities = array(
+			'publish_posts'       => 'publish_'.$this->post_type_key,
+			'edit_posts'          => 'edit_'.$this->post_type_key,
+			'edit_others_posts'   => 'edit_others_'.$this->post_type_key,
+			'delete_posts'        => 'delete_'.$this->post_type_key,
+			'delete_others_posts' => 'delete_others_'.$this->post_type_key,
+			'read_private_posts'  => 'read_private_'.$this->post_type_key,
+			'edit_post'           => 'edit_'.$this->post_type_key,
+			'delete_post'         => 'delete_'.$this->post_type_key,
+			'read_post'           => 'read_'.$this->post_type_key,
+		);
+
 		$args   = array(
 			'label'               => __( 'FAQ', 'cranleigh-2016' ),
 			'description'         => __( 'Cranleigh FAQs', 'cranleigh-2016' ),
@@ -74,6 +86,7 @@ class CustomPostType {
 			'has_archive'         => false,
 			'exclude_from_search' => true,
 			'publicly_queryable'  => true,
+			'capabilities'        => $capabilities,
 			'menu_icon'           => 'dashicons-smiley',
 			'capability_type'     => 'manage_options',
 		);
